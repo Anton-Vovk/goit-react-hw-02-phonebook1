@@ -1,25 +1,71 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from 'react';
+import ContactForm from './components/ContactForm';
+import ContactList from './components/ContactList';
+import Filter from './components/Filter';
+import styles from "./App.module.css"
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends Component {
+  state = {
+    contacts: [
+      { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
+      { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
+      { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
+      { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
+    ],
+    filter: '',
+  };
+
+  inputHandler = ({ target }) => {
+    const { value, name } = target;
+
+    this.setState({ [name]: value });
+  };
+
+  addPhonebook = newContact => {
+    this.state.contacts.find(
+      contact => contact.name.toLowerCase() === newContact.name.toLowerCase(),
+    )
+      ? alert(`${newContact.name} is already in contacts`)
+      : this.setState(prev => ({
+          contacts: [...prev.contacts, newContact],
+        }));
+  };
+
+  filterContacts = () => {
+    const { contacts, filter } = this.state;
+    const searchValue = filter.toLowerCase();
+    if (filter.length) {
+      return contacts.filter(contact =>
+        contact.name.toLowerCase().includes(searchValue),
+      );
+    } else {
+      return contacts;
+    }
+  };
+
+  deleteContact = id => {
+    const { contacts } = this.state;
+    this.setState({
+      contacts: contacts.filter(contact => contact.id !== id),
+    });
+  };
+
+  render() {
+    const { filter } = this.state;
+    const filterContact = this.filterContacts();
+    return (
+      <div className={styles.container}>
+        <h1>Phonebook</h1>
+        <ContactForm addPhonebook={this.addPhonebook} />
+        <h2>Contacts</h2>
+        <Filter filter={filter} inputHandler={this.inputHandler} />
+        <ContactList
+          filterContact={filterContact}
+          deleteContact={this.deleteContact}
+        />
+      </div>
+    );
+  }
 }
 
 export default App;
